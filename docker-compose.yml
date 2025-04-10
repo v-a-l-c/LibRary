@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - "5001:5000"
+    depends_on:
+      - mysql
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      FLASK_RUN_HOST: 0.0.0.0
+      FLASK_RUN_PORT: 5000
+      SQLALCHEMY_DATABASE_URI: mysql+pymysql://devcb:Irapuato@mysql/cobaDataBase
+    networks:
+      app-network:
+        ipv4_address: 172.16.238.10 
+    restart: always
+
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: LibRDataBase
+      MYSQL_USER: devcb
+      MYSQL_PASSWORD: Irapuato
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./my.cnf:/etc/mysql/my.cnf
+    networks:
+      app-network:
+        ipv4_address: 172.16.238.20 
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24
